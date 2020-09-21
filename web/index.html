@@ -94,15 +94,15 @@
           </div>
           <div class="px-2 my-0 flex-fill">
             <span class="font-weight-bolder">Fan Status : </span>
-            <span class="font-weight-bolder text-danger" id="fanStatus">Not active</span>
+            <span class="font-weight-bolder text-danger" id="fanStatus"></span>
           </div>
           <div class="px-2 my-0 flex-fill">
             <span class="font-weight-bolder">Lamp Status : </span>
-            <span class="font-weight-bolder text-danger" id="lampStatus">Not active</span>
+            <span class="font-weight-bolder text-danger" id="lampStatus"></span>
           </div>
           <div class="px-2 my-0 flex-fill">
             <span class="font-weight-bolder">Sprayer Status : </span>
-            <span class="font-weight-bolder text-danger" id="sprayerStatus">Not active</span>
+            <span class="font-weight-bolder text-danger" id="sprayerStatus"></span>
           </div>
         </div>
         <div class="d-flex">
@@ -114,7 +114,7 @@
           </div>
         </div>
         <div class="d-flex">
-          <div class="px-2 my-2 flex-fill w-100">
+          <div class="px-2 mb-2 flex-fill w-100">
             <marquee>&copy;2020 Arif Setiyawan - Teknik Elektro 2016 - Universitas PGRI Banyuwangi</marquee>
           </div>
         </div>
@@ -139,8 +139,6 @@
     firebase.initializeApp(firebaseConfig);
     firebase.database().ref('/').once('value').then(function(snapshot) {
       var json = snapshot.val();
-      jQuery('#humidity').val(json.humidity);
-      jQuery('#temperature').val(json.temperature);
       jQuery('#setInterval').val(json.setInterval);
       jQuery('#setHumidity').val(json.setHumidity);
       jQuery('#setTemperature').val(json.setTemperature);
@@ -150,6 +148,9 @@
         var json = snapshot.val();
         jQuery('#humidity').html(json.humidity);
         jQuery('#temperature').html(json.temperature);
+        jQuery('#fanStatus').addClass(json.fanStatus ? 'text-success' : 'text-danger').removeClass(json.fanStatus ? 'text-danger' : 'text-success').html(json.fanStatus ? 'Active' : 'Not Active');
+        jQuery('#lampStatus').addClass(json.lampStatus ? 'text-success' : 'text-danger').removeClass(json.lampStatus ? 'text-danger' : 'text-success').html(json.lampStatus ? 'Active' : 'Not Active');
+        jQuery('#sprayerStatus').addClass(json.sprayerStatus ? 'text-success' : 'text-danger').removeClass(json.sprayerStatus ? 'text-danger' : 'text-success').html(json.sprayerStatus ? 'Active' : 'Not Active');
       });
     }, 1000);
     jQuery('#reload').click(function() {
@@ -161,7 +162,7 @@
         setHumidity: parseInt(jQuery('#setHumidity').val()),
         setTemperature: parseInt(jQuery('#setTemperature').val())
       };
-      firebase.database().ref('/').set(
+      firebase.database().ref('/').update(
         updates,
         function (error) {
           if (error) {
