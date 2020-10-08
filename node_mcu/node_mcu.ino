@@ -29,6 +29,12 @@ void setup() {
 
 void loop() {
   if (usart.available()) {
+
+    if (WiFi.status() != WL_CONNECTED) {
+      Serial.print(".");
+      delay(500);
+    }
+
     String json = usart.readString();
     Serial.print("Recv:\t");
     Serial.println(json);
