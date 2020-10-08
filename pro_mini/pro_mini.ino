@@ -13,7 +13,7 @@ SoftwareSerial usart(6, 5);
 LiquidCrystal lcd(A1, A0, 13, 12, 11, 10);
 
 static float h = 0, t = 0;
-static int setTemperature, setHumidity, setInterval;
+static int setTemperature = 0, setHumidity = 0, setInterval = 0;
 
 void setup() {
   dht.begin();
@@ -54,17 +54,6 @@ void loop() {
     }
 
     StaticJsonBuffer <200> doc;
-    JsonObject &root = doc.createObject();
-    JsonArray &data = root.createNestedArray("data");
-    data.add(t);
-    data.add(h);
-
-    String dataJson;
-    root.printTo(dataJson);
-    Serial.print("Send:\t");
-    Serial.println(dataJson);
-    usart.print(dataJson);
-
     JsonObject &roots = doc.parseObject(json);
     if (!roots.success()) {
       return;
@@ -94,24 +83,49 @@ void loop() {
     lcd.setCursor(15, 1); lcd.print(setInterval);
   }
 
+  static byte lampStatus = 0, fanStatus = 0, pompaStatus = 0;
+
   if (t && h) {
     if ((float)t > (float)(setTemperature + setInterval)) {
       digitalWrite(FAN, false);
       digitalWrite(LAMP, true);
+      fanStatus = 0;
+      lampStatus = 1;
     }
     else if ((float)t < (float)(setTemperature - setInterval)) {
       digitalWrite(FAN, true);
       digitalWrite(LAMP, false);
+      fanStatus = 1;
+      lampStatus = 0;
     }
     else {
       digitalWrite(FAN, true);
       digitalWrite(LAMP, true);
+      fanStatus = 1;
+      lampStatus = 1;
     }
     if ((float)h < (float)setHumidity) {
       digitalWrite(POMPA, false);
+      pompaStatus = 0;
     }
     else {
       digitalWrite(POMPA, true);
+      pompaStatus = 1;
     }
   }
+
+  StaticJsonBuffer <200> doc;
+  JsonObject &root = doc.createObject();
+  JsonArray &data = root.createNestedArray("data");
+  data.add(t);
+  data.add(h);
+  data.add(fanStatus);
+  data.add(lampStatus);
+  data.add(pompaStatus);
+
+  String dataJson;
+  root.printTo(dataJson);
+  Serial.print("Send:\t");
+  Serial.println(dataJson);
+  usart.print(dataJson);
 }

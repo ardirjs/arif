@@ -41,6 +41,9 @@ void loop() {
 
     Firebase.setFloat("temperature", root["data"][0]);
     Firebase.setFloat("humidity", root["data"][1]);
+    Firebase.setInt("fanStatus", root["data"][2]);
+    Firebase.setInt("lampStatus", root["data"][3]);
+    Firebase.setInt("sprayerStatus", root["data"][4]);
 
     JsonObject &roots = doc.createObject();
     JsonArray &data = roots.createNestedArray("data");
